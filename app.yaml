@@ -6,19 +6,13 @@ metadata:
     istio-injection: enabled 
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: wtyfft
-  namespace: wty-istio
----
-apiVersion: v1
 kind: Service
 metadata:
-  name: wtyfft
+  name: wtyfft-svc
   namespace: wty-istio
 spec:
   selector:
-    app: wtyfft
+    app: wtyfft-app
   ports:
     - protocol: TCP
       port: 8000
@@ -27,15 +21,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wtyfft
+  name: wtyfft-deploy
   labels:
-    app: wtyfft
+    app: wtyfft-deploy-label
   namespace: wty-istio
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: wtyfft
+      app: wtyfft-app
   template:
     metadata:
       annotations:
@@ -43,11 +37,10 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
       labels:
-        app: wtyfft
+        app: wtyfft-app
     spec:
-      serviceAccountName: wtyfft
       containers:
-      - name: wtyfft
+      - name: wtyfft-container-name
         image: registry.cn-hangzhou.aliyuncs.com/wtysos11/wty-fft:0.0.1
         imagePullPolicy: IfNotPresent
         ports:
@@ -79,7 +72,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: wtyfft
+  name: wtyfft-vs
   namespace: wty-istio
 spec:
   hosts:
@@ -94,7 +87,7 @@ spec:
         exact: "/metrics"
     route:
     - destination:
-        host: wtyfft
+        host: wtyfft-svc
         port:
           number: 8000
 
